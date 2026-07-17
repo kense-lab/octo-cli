@@ -22,9 +22,9 @@
 - Each Bot has an **owner**; operations are attributed to the Bot identity. For LLM-backed paths (`matter extract`) the bot acts on behalf of its owner — pass `owner_uid` as `creator_uid`.
 - `OCTO_SPACE_ID` (or `--space`) supplies space context for platform-scoped bots. Space-scoped bots resolve their space server-side.
 
-## Command Structure (8 domains, 75 operations / 78 commands incl. 3 matter transition aliases)
+## Command Structure (8 domains, 77 operations / 80 commands incl. 3 matter transition aliases)
 
-Service commands are auto-registered. The hand-written leaves are `schema`, `version`, `api` (generic passthrough), `config`, `auth`, and the cobra-generated `completion`.
+Service commands are auto-registered. The hand-written leaves are `schema`, `version`, `api` (generic passthrough), `config`, `auth`, `skills`, and the cobra-generated `completion`.
 
 > **`matter` is temporarily withheld** (backend API not yet stable). The spec
 > stays embedded — `octo-cli schema matter.*` still introspects it — but the command
@@ -51,11 +51,13 @@ octo-cli docs      create | list | get | rename | delete | forward-grant
                sheet    get|edit
                scene    get|edit
                members  list|set|remove
+               share    get|set
                comments list|add|edit|delete
                versions list|create|state|rename|delete|restore
                attachments presign|get|resolve
 
 octo-cli auth      login | status | logout | list
+octo-cli skills install <skill-id> --from marketplace --dir <skills-root>
 octo-cli schema [--list [domain] | <operation-id>]
 octo-cli api <METHOD> <PATH> [--params ...] [--data ...] [--service ...]
 octo-cli config show
@@ -63,7 +65,7 @@ octo-cli completion bash|zsh|fish|powershell
 octo-cli version
 ```
 
-`octo-cli auth login` stores a bot token (read from a hidden prompt, `--with-token` stdin, or `--token-file` — never argv) under a profile keyed by `--bot-id`/`--profile`. `status`/`list` show metadata only (tokens always masked); `logout` removes a profile.
+`octo-cli auth login` stores a bot token (read from a hidden prompt, `--with-token` stdin, or `--token-file` — never argv) under a profile keyed by `--bot-id`/`--profile`. Per-environment profiles may store `--api-base-url`; explicit environment variables still win. `status`/`list` show metadata only (tokens always masked); `logout` removes a profile.
 
 Bot-type capability and per-command flags are in `docs/octo-cli-design.md`. Agent-facing usage lives under `skills/` (`octo-shared`, `octo-matter` (withheld — see above), `octo-messaging`, `octo-files`, `octo-docs`) — keep those in sync when command shapes change.
 
@@ -75,6 +77,7 @@ Bot-type capability and per-command flags are in `docs/octo-cli-design.md`. Agen
 | `OCTO_BOT_ID`       | Robot id selecting a stored profile (env form of `--bot-id`). Selector, not a secret. |
 | `OCTO_CONFIG_DIR`   | Override the credential dir (default `~/.octo-cli`).     |
 | `OCTO_API_BASE_URL`  | Unified API base URL for all services. Required.          |
+| `OCTO_MARKETPLACE_API_PREFIX` | Marketplace gateway prefix on the same host (default `/market`; empty means direct `/api/v1`). |
 | `OCTO_SPACE_ID`     | Space context for platform-scoped bots.                  |
 | `OCTO_FORMAT`       | Default output format (`json` | `table` | `csv` | `ndjson`). |
 
